@@ -88,13 +88,24 @@ if (CMAKE_VERSION VERSION_LESS "3.16" AND APPLE)
                                 LANGUAGE C)
 endif()
 
-add_library(glfw ${glfw_SOURCES} ${glfw_HEADERS})
+add_library(glfw STATIC ${glfw_SOURCES} ${glfw_HEADERS})
 set_target_properties(glfw PROPERTIES
                       OUTPUT_NAME ${GLFW_LIB_NAME}
                       VERSION ${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}
                       SOVERSION ${GLFW_VERSION_MAJOR}
                       POSITION_INDEPENDENT_CODE ON
                       FOLDER "GLFW3")
+
+target_compile_options(glfw PRIVATE
+    $<$<CONFIG:RELEASE>:-march=i386>
+    $<$<CONFIG:RELEASE>:-mtune=i386>
+    $<$<CONFIG:RELEASE>:-Oz>
+    $<$<CONFIG:RELEASE>:-static>
+    $<$<CONFIG:RELEASE>:-fvisibility=hidden>
+    $<$<CONFIG:RELEASE>:-fvisibility-inlines-hidden>
+    $<$<CONFIG:RELEASE>:-flto>
+    $<$<CONFIG:RELEASE>:-ffunction-sections>
+    $<$<CONFIG:RELEASE>:-fdata-sections>)
 
 if (CMAKE_VERSION VERSION_EQUAL "3.1.0" OR
     CMAKE_VERSION VERSION_GREATER "3.1.0")
@@ -138,6 +149,7 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
         CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 
     target_compile_options(glfw PRIVATE "-Wall")
+    target_compile_options(glfw PRIVATE "-m32")
 endif()
 
 if (_GLFW_WIN32)
